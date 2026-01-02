@@ -99,7 +99,7 @@ const showBookModal = ref(false)
 const bookingDoc = ref(null)
 const bookingDate = ref('')
 
-const API_URL = 'http://127.0.0.1:5000/api/patient'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000') + '/api/patient'
 
 const searchDoctors = async () => {
     const params = selectedDept.value ? { specialization_id: selectedDept.value } : {}

@@ -1,0 +1,77 @@
+# Deployment Guide for Antigravity
+
+This guide will walk you through deploying your **Flask (Backend)** and **Vue (Frontend)** application to **Render.com**.
+
+## Prerequisites
+1.  **GitHub Account**: Ensure your project is pushed to a GitHub repository.
+2.  **Render Account**: Sign up at [render.com](https://render.com).
+
+---
+
+## Part 1: Database & Redis (Backend Infrastructure)
+
+1.  **Create PostgreSQL Database**:
+    *   Click **New +** -> **PostgreSQL**.
+    *   Name: `antigravity-db`.
+    *   Region: Closest to you (e.g., Singapore, Frankfurt).
+    *   Plan: **Free**.
+    *   Click **Create Database**.
+    *   **Copy the "Internal Database URL"** (starts with `postgres://...`). You'll need this later.
+
+2.  **Create Redis Instance** (For Celery/Tasks):
+    *   Click **New +** -> **Redis**.
+    *   Name: `antigravity-redis`.
+    *   Region: Same as your database.
+    *   Plan: **Free**.
+    *   Click **Create Redis**.
+    *   **Copy the "Internal Redis URL"** (starts with `redis://...`). You'll need this later.
+
+---
+
+## Part 2: Backend Deployment (Flask)
+
+1.  Click **New +** -> **Web Service**.
+2.  Connect your GitHub repository.
+3.  **Configure the Service**:
+    *   **Name**: `antigravity-backend`
+    *   **Region**: Same as DB/Redis.
+    *   **Branch**: `main` (or your working branch).
+    *   **Root Directory**: `backend` (Important! This tells Render where your python code is).
+    *   **Runtime**: **Python 3**.
+    *   **Build Command**: `pip install -r requirements.txt` (Default is usually fine).
+    *   **Start Command**: `gunicorn run:app` (We created a Procfile, so Render might auto-detect this, but type it if not).
+4.  **Environment Variables** (Scroll down to "Advanced"):
+    *   Add `DATABASE_URL` = paste your **Internal Database URL**.
+    *   Add `REDIS_URL` = paste your **Internal Redis URL**.
+    *   Add `SECRET_KEY` = generate a random strong string (e.g. `s3cr3t_k3y_123`).
+    *   Add `JWT_SECRET_KEY` = generate another random string.
+    *   Add `PYTHON_VERSION` = `3.9.0` (Optional, good for stability).
+5.  Click **Create Web Service**.
+6.  Wait for the deployment to finish. It will give you a public URL (e.g., `https://antigravity-backend.onrender.com`). **Copy this URL**.
+
+---
+
+## Part 3: Frontend Deployment (Vue.js)
+
+1.  Click **New +** -> **Static Site**.
+2.  Connect the **same** GitHub repository.
+3.  **Configure the Site**:
+    *   **Name**: `antigravity-frontend`
+    *   **Branch**: `main`.
+    *   **Root Directory**: `frontend` (Important!).
+    *   **Build Command**: `npm install && npm run build`.
+    *   **Publish Directory**: `dist` (This is where Vite builds your files).
+4.  **Environment Variables**:
+    *   Add `VITE_API_URL` = paste your **Backend URL** from Part 2 (e.g., `https://antigravity-backend.onrender.com`).
+    *   *Note: Do not add a trailing slash `/` at the end of the URL.*
+5.  Click **Create Static Site**.
+
+---
+
+## Part 4: Final Verification
+1.  Visit your new **Frontend URL** (provided by Render).
+2.  Try to **Register** a new user.
+    *   If successful, your Frontend connected to the Backend, and the Backend connected to the Database!
+3.  Check the logs in the Render dashboard if anything fails.
+
+**Re-deploying**: whenever you push code modification to GitHub, Render will automatically re-deploy your changes!

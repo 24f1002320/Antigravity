@@ -74,7 +74,7 @@ const showCompleteModal = ref(false)
 const currentAppt = ref(null)
 const treatment = reactive({ diagnosis: '', prescription: '', notes: '' })
 
-const API_URL = 'http://127.0.0.1:5000/api/doctor'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000') + '/api/doctor'
 
 const loadData = async () => {
     const apptsRes = await axios.get(`${API_URL}/appointments`)

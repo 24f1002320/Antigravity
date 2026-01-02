@@ -133,7 +133,7 @@ const newDeptDesc = ref('')
 
 const newDoc = reactive({ name: '', email: '', password: '', specialization_id: '', experience_years: 0 })
 
-const API_URL = 'http://127.0.0.1:5000/api/admin'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000') + '/api/admin'
 
 const loadData = async () => {
     const statsRes = await axios.get(`${API_URL}/stats`)
